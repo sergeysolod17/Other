@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Програма оптимізації універсальних постів поточного ремонту на АТП</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+    </head>
+    <body>
+        <p align=center>НАЦІОНАЛЬНИЙ ТРАНСПОРТНИЙ УНІВЕРСИТЕТ</p>
+        <p align=center>Кафедра технічної експлуатації автомобілів та автосервісу</p>
+        <br>
+        <p align=center>Програма оптимізації універсальних постів поточного ремонту на АТП</p>
+        <p align=center>Автор: доцент Білецький В.О.</p>
+        <br>
+        <table align=center>
+         <tr><td>Середньорічний пробіг автомобіля:</td> <td> <input id="input_L_ad" type="text" value="71000"></td></tr>
+         <tr><td>Кількість автомобілів: </td> <td>              <input id="input_Q" type="text" value="110"></td></tr>
+         <tr><td>Трудомісткість постових робіт ПР на 1000 км:</td> <td> <input id="input_T_pr" type="text" value="4.1"></td></tr>
+         <tr><td>Кількість робочих днів: </td> <td> <input id="input_D_r" type="text" value="305"></td></tr>
+         <tr><td>Кількість змін роботи на добу: </td> <td> <input id="input_Z_d" type="text" value="2"></td></tr>
+         <tr><td>Тривалість зміни в годинах: </td> <td> <input id="input_T_z" type="text" value="8.2"></td></tr>
+         <tr><td>Середня кількість робітників на посту ПР: </td> <td> <input id="input_Q_r" type="text" value="2"></td></tr>
+         <tr><td>Коефіцієнт використання ро-бочого часу: </td> <td> <input id="input_K_rt" type="text" value="2"></td></tr>
+         <tr><td>Втарти за добу від простою автомобіля, грн. : </td> <td> <input id="input_U_a" type="text" value="550"></td></tr>
+         <tr><td>Втарти за добу від простою поста, грн. :</td> <td>  <input id="input_U_p" type="text" value="135"></td></tr>
+         <tr><td><button id ="button_calc" onclick="onclick_calc()">Розрахувати</button></td></tr>
+        </table>
+        <script>           
+       
+        function onclick_calc() {
+            var L = document.getElementById("input_L_ad").value;
+            var Q = document.getElementById("input_Q").value;
+            //if (Q >= 170) { document.writeln("Значення кількості автомобілів перевищують допустиме значення: 170 автомобілів. <br>  Значення більші ніж 170 не обробляються звичайними методами."); return; }
+            var T = document.getElementById("input_T_pr").value;
+            var D = document.getElementById("input_D_r").value;
+            var Z = document.getElementById("input_Z_d").value;
+            var T_z = document.getElementById("input_T_z").value;
+            var R = document.getElementById("input_Q_r").value;
+            var K = document.getElementById("input_K_rt").value;
+            var U_a = document.getElementById("input_U_a").value;
+            var U_p = document.getElementById("input_U_p").value;
+            
+            // завантаження системи
+            var X = L *  T / (1000*D*Z*T_z*R*K);
+            //document.writeln("Завантаження системи:"+X+ "<br>");
+            //приблизна кількість постів
+            //test
+            //X=0.02;Q=600;U_a=36;U_p=22;
+            var S0 = Math.round(X*Q);
+            document.writeln("<p align=center>НАЦІОНАЛЬНИЙ ТРАНСПОРТНИЙ УНІВЕРСИТЕТ</p><p align=center>Кафедра технічної експлуатації автомобілів та автосервісу</p> <br><p align=center>Програма оптимізації універсальних постів поточного ремонту на АТП</p><p align=center>Автор: доцент Білецький В.О.</p><br>");
+            //document.writeln("Приблизна кількість постів:"+S0 + "<br>");
+            document.writeln("<table align=center><tbody><td style=\"text-align: center;\">Кількість постів</td><td style=\"text-align: center;\">Середня довжина <br> черги</td><td style=\"text-align: center;\">Середня кількість <br> вільних постів</td><td style=\"text-align: center;\">Втрати від <br> простою автомобіля</td><td style=\"text-align: center;\"> Втрати від <br> простою постів</td><td style=\"text-align: center;\"> Критерій оптимальності</td>"+ "<br>"); 
+            var S = S0;var o=1; //var opt=-1; var V_opt;
+            //var arr_U_a = [0,0,0,0,0,0,0,0];
+            for (S = S0; S <= (S0+7); S =S+1) {
+                var A=1;
+                var N=1;
+                var C1=1;
+                var C2=1;
+                var C3=S;
+                var C4=0;
+                for (N;N<=S;N=N+1)
+                {
+                    A=A*X*(Q-N+1)/N;
+                    C1 = C1+A;
+                    B=(S-N)*A;
+                    C3=C3+B;
+                }
+                for (N;A>0.00001;N=N+1)
+                {
+                    A=A*X*(Q-N+1)/S;
+                    C2 = C2+A;
+                    E=(N-S)*A;
+                    C4=C4+E;
+                }
+                var P0=1/(C1+C2);
+                var D=P0*C4;
+                var R=P0*C3;
+                var V_a=U_a*D;
+                var V_p=U_p*R;
+                var V_=V_a+V_p;
+                
+                /*if(V_<V_opt)
+                    V_opt=V_;
+                else if(opt == -1)
+                    {opt=o-1;};
+                */
+                //o += 1;
+                //arr_U_a[o]=U_a;
+
+                document.writeln("<tr ><td id=\"trow"+o + "\" style=\"text-align: center;\">" + S + "</td><td style=\"text-align: center;\">"+D.toFixed(4)+"</td><td style=\"text-align: center;\">" + R.toFixed(4) +"</td><td style=\"text-align: center;\">"+V_a.toFixed(2)+"</td><td style=\"text-align: center;\">"+V_p.toFixed(2)+"</td><td style=\"text-align: center;\">"+V_.toFixed(2)+"</tr>");
+                //T = i * D_r * Z_d * Q_r * K_rt;
+                //var sigma = T_t / T;
+                //var P_0 = _P_0(_i, Q, sigma);
+                //var v_ = _v_(P_0, _i, Q, sigma);
+                //document.writeln(Q + " " + X_ + "\t\t\t" + sigma + "   " + _i + "   " + _P_0(_i, Q, sigma) + "   " + v_ + "<br>");
+                //document.writeln(Fact(Q) / (Fact(Math.ceil(X_)) * Fact(Q - Math.ceil(X_))) + "<br>");
+            };
+            document.writeln("</tbody><table>");          
+                              
+        }
+        //document.getElementById("trow"+opt).bgColor = "green";    
+
+/*
+        var trace_U_a = {
+  x: [S0,S0+1,S0+2,S0+3,S0+4,S0+5,S0+6,S0+7],
+  y: arr_U_a,
+  mode: 'lines+markers',
+  name: 'Scatter'
+};
+
+var trace_U_p = {
+  x: [2, 3, 4, 5],
+  y: [16, 5, 11, 9],
+  mode: 'lines+markers',
+  name: 'Lines'
+};
+
+var trace_U = {
+  x: [1, 2, 3, 4],
+  y: [12, 9, 15, 12],
+  mode: 'lines+markers',
+  name: 'Scatter + Lines'
+};
+
+var data = [ trace_U_a, trace_U_p, trace_U ];
+
+var layout = {
+  title:'Зміна цільової функції U в залежності від числа востів поточного ремонту'
+};
+//document.newPlot('myDiv', data, layout);
+Plotly.newPlot('myDiv', data, layout);*/
+</script>
+<!--<div id="myDiv"></div>-->
+    </body>
+</html>
